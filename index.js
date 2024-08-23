@@ -6,6 +6,7 @@ const home = require("./routes/home");
 const app = express();
 app.use(express.json());
 
+require("./database/init.mongo");
 // Routes
 app.use("/home", home);
 
