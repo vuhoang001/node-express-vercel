@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
-const connectString = process.env.MONGODB_URI;
+const connectString =
+  "mongodb+srv://vuhoang250203:2nc63AvbW76HKWBK@trackingmoney.8drhd.mongodb.net/?retryWrites=true&w=majority&appName=TrackingMoney";
 
 class Database {
   constructor() {
