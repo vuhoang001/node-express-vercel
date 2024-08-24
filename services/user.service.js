@@ -6,10 +6,7 @@ class UserService {
     return data;
   };
 
-  createUser = async (
-    user_name = "username",
-    user_description = "user_description"
-  ) => {
+  createUser = async (user_name = "Nhat Linh", user_description = "cute") => {
     const data = await userModel.create({ user_name, user_description });
     return "Create success";
   };
