@@ -7,7 +7,7 @@ app.use(express.json());
 
 require("./database/init.mongo");
 app.use("/", require("./routes/index"));
-app.use("/home", home);
+
 
 const port = process.env.PORT || 9001;
 app.listen(port, () => console.log(`Listening to port ${port}`));
