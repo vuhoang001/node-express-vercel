@@ -8,7 +8,7 @@ class UserService {
 
   createUser = async (user_name = "Nhat Linh", user_description = "cute") => {
     const data = await userModel.create({ user_name, user_description });
-    return "Create success";
+    return "Create success!";
   };
 }
 
