@@ -1,17 +1,23 @@
-const { model, Schema, Types } = require("mongoose");
+const { model, Schema } = require("mongoose");
 
 const DOCUMENT_NAME = "User";
 const COLLECTION_NAME = "Users";
 
-const ColumnSchema = new Schema(
+const UserSchema = new Schema(
   {
-    user_name: {
+    username: {
       type: String,
-      default: "Username1",
+      required: true,
     },
-    user_description: {
+    password: {
       type: String,
-      default: "user_description",
+      required: true
+    },
+    gmail: {
+      type: String,
+    },
+    phone: {
+      type: String, 
     },
   },
   {
@@ -20,4 +26,4 @@ const ColumnSchema = new Schema(
   }
 );
 
-module.exports = model(DOCUMENT_NAME, ColumnSchema);
+module.exports = model(DOCUMENT_NAME, UserSchema);

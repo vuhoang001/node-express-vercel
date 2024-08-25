@@ -7,8 +7,13 @@ class UserController {
   };
 
   createUser = async (req, res, next) => {
-    const data = await UserService.createUser();
-    return res.status(200).json(data);
+    const data = await UserService.createUser(req.body);
+    return res.json(data);
+  };
+
+  login = async (req, res, next) => {
+    const data = await UserService.login(req.body);
+    return res.json(data);
   };
 }
 
