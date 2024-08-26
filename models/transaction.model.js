@@ -7,7 +7,6 @@ const TransactionSchema = new Schema(
   {
     transaction_amount: {
       type: Number,
-      required: true,
     },
     transaction_description: {
       type: String,
@@ -16,13 +15,15 @@ const TransactionSchema = new Schema(
     transaction_type: {
       type: String,
       enum: ["income", "outcome"],
-      required: true,
     },
     category: {
       type: Types.ObjectId,
-      ref: "category",
-      required: true,
+      ref: "Category",
     },
+    uid: {
+      type: Types.ObjectId, 
+      ref: "User"
+    }
   },
   {
     timestamps: true,

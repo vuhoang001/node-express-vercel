@@ -1,5 +1,6 @@
 const userModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
+const { unSelectedObject } = require("../utils/index.util");
 class UserService {
   getAll = async () => {
     const data = await userModel.find();
@@ -20,7 +21,9 @@ class UserService {
     });
 
     if (!newAccount) return "Registed failed!";
-    return "Create success";
+
+    const data = { data: newAccount, message: "Created successfully!" };
+    return data;
   };
 
   login = async ({ username, password }) => {
@@ -34,8 +37,21 @@ class UserService {
 
     if (!matchPassword) return "Account or password is wrong!";
 
-    return "Login successfully12!";
+    const metadata = unSelectedObject(holderAccount.toObject(), [
+      "password",
+      "__V",
+    ]);
+    const data = {
+      message: "Login successfully",
+      metadata: metadata,
+    };
+    return data;
   };
+
+  // forgetPassword = async ({ username, email }) => {
+  //   const holderAccount = await userModel.findOne({ username });
+  //   if (!holderAccount) return "Account is not registed!";
+  // };
 }
 
 module.exports = new UserService();

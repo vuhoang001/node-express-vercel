@@ -13,6 +13,10 @@ const CategorySchema = new Schema(
       type: String,
       default: "",
     },
+    uid: {
+      type: Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,
