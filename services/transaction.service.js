@@ -18,12 +18,13 @@ class TransactionService {
     return data;
   };
 
-  create = async (payload) => {
+  create = async (payload, uid) => {
     const data = await transactionModel.create({
       transaction_amount: Number(payload.transaction_amount),
       transaction_description: payload.transaction_description,
       transaction_type: payload.transaction_type,
       category: payload.category,
+      uid: uid,
     });
     return data;
   };
@@ -48,34 +49,47 @@ class TransactionService {
     return data;
   };
 
-  statictisc = async (type, value, includeType, transactionType) => {
-    const matchCriteria = {};
-    let time;
+  statictisc = async (type, value, includeType, transactionType, uid) => {
+    const matchCriteria = { uid };
 
+    // Xử lý phạm vi thời gian nếu có
     if (type && value) {
-      time = getDateRange(type, value);
+      const time = getDateRange(type, value);
       matchCriteria.createdAt = {
         $gte: time.startDate,
         $lte: time.endDate,
       };
     }
 
-    if (includeType) {
+    // Thêm điều kiện loại giao dịch nếu yêu cầu
+    if (includeType && transactionType) {
       matchCriteria.transaction_type = transactionType;
     }
 
-    const result = await transactionModel.aggregate([
-      {
-        $match: matchCriteria,
-      },
-      {
-        $group: {
-          _id: null, // Không phân nhóm theo trường nào
-          totalIncome: { $sum: "$transaction_amount" }, // Tính tổng số tiền
+    console.log("Match Criteria:", matchCriteria);
+
+    try {
+
+      const result = await transactionModel.aggregate([
+        { $match: matchCriteria },
+        {
+          $group: {
+            _id: "$uid", // Nhóm theo trường uid
+            totalIncome: { $sum: "$transaction_amount" }, // Tính tổng số tiền
+            count: { $sum: 1 }, // Tính số lượng giao dịch
+          },
         },
-      },
-    ]);
-    return result;
+      ]);
+
+      if (result.length === 0) {
+        return [{ _id: uid, totalIncome: 0, count: 0 }];
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Error in statistics method:", error);
+      throw new Error("Failed to fetch statistics");
+    }
   };
 }
 

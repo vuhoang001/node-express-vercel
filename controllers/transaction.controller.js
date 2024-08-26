@@ -16,11 +16,12 @@ class TransactionController {
         transaction_type,
         category,
       } = req.body;
-      if (!transaction_amount || !transaction_type || !category) {
+      const uid = req.uid;
+      if (!transaction_amount || !transaction_type || !category || !uid) {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      const data = await transactionService.create(req.body);
+      const data = await transactionService.create(req.body, uid);
       return res.status(201).json(data);
     } catch (error) {
       console.error("Error in create controller:", error);
@@ -51,12 +52,14 @@ class TransactionController {
     const value = req.query.value;
     const transactionType = req.query.transactionType;
     const includeType = req.query.includeType || false;
+    const uid = req.uid;
 
     const data = await transactionService.statictisc(
       type,
       value,
       includeType,
-      transactionType
+      transactionType,
+      uid
     );
     return res.json(data);
   };

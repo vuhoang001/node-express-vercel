@@ -1,10 +1,12 @@
 const HEADER = {
-  CLIENT_ID: "x-client-id",
+  CLIENT_ID: "client_id",
 };
 
 const checkUid = async (req, res, next) => {
   const uid = req.headers[HEADER.CLIENT_ID];
-  if (!uid) return res.status(404).json("Failed to request to server!");
+  if (!uid) {
+    return res.status(400).json({ message: "Client ID is required" });
+  }
   req.uid = uid;
   next();
 };
