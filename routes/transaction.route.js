@@ -11,4 +11,5 @@ router.patch("/transaction", TransactionController.edit);
 router.delete("/transaction", TransactionController.delete);
 
 router.get("/statistics", TransactionController.getStatistics);
+router.get("/statistics/calendar", TransactionController.getStaticCalander);
 module.exports = router;

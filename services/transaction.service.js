@@ -1,5 +1,6 @@
 const transactionModel = require("../models/transaction.model");
 const { getDateRange } = require("../helpers/getDateRange");
+const { Types } = require("mongoose");
 class TransactionService {
   getAll = async (id, uid) => {
     let query = {};
@@ -66,10 +67,7 @@ class TransactionService {
       matchCriteria.transaction_type = transactionType;
     }
 
-    console.log("Match Criteria:", matchCriteria);
-
     try {
-
       const result = await transactionModel.aggregate([
         { $match: matchCriteria },
         {
@@ -90,6 +88,120 @@ class TransactionService {
       console.error("Error in statistics method:", error);
       throw new Error("Failed to fetch statistics");
     }
+  };
+
+  staticCalander = async (month, year, uid) => {
+    const formattedMonth = String(month).padStart(2, "0");
+
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const formattedNextMonth = String(nextMonth).padStart(2, "0");
+
+    const startDate = new Date(`${year}-${formattedMonth}-01T00:00:00.000Z`);
+    const endDate = new Date(`${year}-${formattedNextMonth}-01T00:00:00.000Z`);
+
+    // const data = await transactionModel.aggregate([
+    //   {
+    //     $match: {
+    //       createdAt: {
+    //         $gte: startDate, // Ngày đầu tháng
+    //         $lt: endDate, // Ngày đầu tháng sau
+    //       },
+    //     },
+    //   },
+
+    //   {
+    //     $group: {
+    //       _id: {
+    //         date: {
+    //           $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+    //         },
+    //       },
+    //       transactions: {
+    //         $push: {
+    //           transaction_id: "$_id",
+    //           transaction_amount: "$transaction_amount",
+    //           transaction_description: "$transaction_description",
+    //           transaction_type: "$transaction_type",
+    //           category: "$category",
+    //         },
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       $lookup: {
+    //         from: "Categories", // Tên tập hợp Category trong cơ sở dữ liệu
+    //         localField: "category", // Trường trong Transaction chứa ObjectId
+    //         foreignField: "_id", // Trường trong Category chứa ObjectId
+    //         as: "categoryDetails", // Tên trường mới để chứa thông tin kết hợp
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: "$_id.date",
+    //       transactions: { $push: "$transactions" },
+    //     },
+    //   },
+    //   {
+    //     $sort: { _id: 1 }, // Sắp xếp kết quả theo ngày
+    //   },
+    // ]);
+
+    uid = new Types.ObjectId(uid);
+    const transactions2 = await transactionModel.aggregate([
+      {
+        $match: {
+          uid: uid,
+          createdAt: {
+            $gte: startDate, // Ngày đầu tháng
+            $lt: endDate, // Ngày đầu tháng sau
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "Categories", // Tên tập hợp Category trong cơ sở dữ liệu
+          localField: "category", // Trường trong Transaction chứa ObjectId
+          foreignField: "_id", // Trường trong Category chứa ObjectId
+          as: "categoryDetails", // Tên trường mới để chứa thông tin kết hợp
+        },
+      },
+      {
+        $unwind: {
+          path: "$categoryDetails", // Giải nén mảng categoryDetails
+          preserveNullAndEmptyArrays: true, // Đảm bảo không bị loại bỏ nếu không có kết quả tìm thấy
+        },
+      },
+      {
+        $addFields: {
+          category: "$categoryDetails", // Thay thế trường category bằng categoryDetails
+        },
+      },
+      {
+        $project: {
+          categoryDetails: 0, // Loại bỏ trường categoryDetails
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+          }, // Nhóm theo ngày
+          totalAmount: { $sum: "$transaction_amount" }, // Tổng số tiền giao dịch trong ngày
+          transactions: {
+            $push: {
+              transaction_id: "$_id",
+              transaction_amount: "$transaction_amount",
+              transaction_description: "$transaction_description",
+              transaction_type: "$transaction_type",
+              category: "$category",
+            },
+          }, // Danh sách các giao dịch trong ngày
+        },
+      },
+    ]);
+    return transactions2;
   };
 }
 

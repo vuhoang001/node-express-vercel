@@ -63,6 +63,12 @@ class TransactionController {
     );
     return res.json(data);
   };
+
+  getStaticCalander = async (req, res, next) => {
+    const uid = req.uid
+    const data = await transactionService.staticCalander(8, 2024, uid);
+    return res.status(200).json(data);
+  };
 }
 
 module.exports = new TransactionController();
