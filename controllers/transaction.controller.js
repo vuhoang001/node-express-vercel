@@ -65,9 +65,31 @@ class TransactionController {
   };
 
   getStaticCalander = async (req, res, next) => {
-    const uid = req.uid
-    const data = await transactionService.staticCalander(8, 2024, uid);
-    return res.status(200).json(data);
+    const uid = req.uid;
+    const month = req.query.month;
+    const year = req.query.year;
+    if (!month || !year) {
+      return res.status(404).json({ message: "Missing time!" });
+    }
+
+    try {
+      // Lấy dữ liệu từ dịch vụ
+      const data = await transactionService.staticCalander(+month, +year, uid);
+
+      // Kiểm tra xem dữ liệu có rỗng không
+      if (data.length === 0) {
+        return res.status(404).json({
+          message: "No transactions found for the given month and year.",
+        });
+      }
+
+      // Trả về dữ liệu nếu mọi thứ ổn
+      return res.status(200).json(data);
+    } catch (error) {
+      // Xử lý lỗi và trả về lỗi cho client
+      console.error("Error fetching calendar data:", error);
+      return res.status(500).json({ message: "Internal server error." });
+    }
   };
 }
 

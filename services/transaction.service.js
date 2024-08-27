@@ -91,12 +91,15 @@ class TransactionService {
   };
 
   staticCalander = async (month, year, uid) => {
-    const formattedMonth = String(month).padStart(2, "0");
 
+    const formattedMonth = String(month).padStart(2, "0");
     const nextMonth = month === 12 ? 1 : month + 1;
     const formattedNextMonth = String(nextMonth).padStart(2, "0");
 
+    // Ngày đầu tháng hiện tại
     const startDate = new Date(`${year}-${formattedMonth}-01T00:00:00.000Z`);
+
+    // Ngày đầu tháng tiếp theo
     const endDate = new Date(`${year}-${formattedNextMonth}-01T00:00:00.000Z`);
 
     // const data = await transactionModel.aggregate([
