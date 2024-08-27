@@ -51,6 +51,7 @@ class TransactionService {
   };
 
   statictisc = async (type, value, includeType, transactionType, uid) => {
+    uid = new Types.ObjectId(uid);
     const matchCriteria = { uid };
 
     // Xử lý phạm vi thời gian nếu có
@@ -72,9 +73,37 @@ class TransactionService {
         { $match: matchCriteria },
         {
           $group: {
-            _id: "$uid", // Nhóm theo trường uid
-            totalIncome: { $sum: "$transaction_amount" }, // Tính tổng số tiền
+            _id: "$category", // Nhóm theo trường uid
+            total: { $sum: "$transaction_amount" }, // Tính tổng số tiền
             count: { $sum: 1 }, // Tính số lượng giao dịch
+          },
+        },
+        {
+          $lookup: {
+            from: "Categories", // Tên tập hợp Category trong cơ sở dữ liệu
+            localField: "_id", // Trường trong Transaction chứa ObjectId
+            foreignField: "_id", // Trường trong Category chứa ObjectId
+            as: "categoryDetails", // Tên trường mới để chứa thông tin kết hợp
+          },
+        },
+        {
+          $unwind: {
+            path: "$categoryDetails", // Giải nén mảng categoryDetails
+            preserveNullAndEmptyArrays: true, // Đảm bảo không bị loại bỏ nếu không có kết quả tìm thấy
+          },
+        },
+        {
+          $addFields: {
+            category_name: "$categoryDetails.category_name",
+          },
+        },
+        {
+          $project: {
+            _id: 0, // Loại bỏ trường _id khỏi kết quả
+            category_id: "$_id", // Đổi tên _id thành category_id
+            category_name: 1, // Giữ lại trường category_name
+            total: 1, // Giữ lại tổng số tiền
+            count: 1, // Giữ lại số lượng giao dịch
           },
         },
       ]);
@@ -91,7 +120,6 @@ class TransactionService {
   };
 
   staticCalander = async (month, year, uid) => {
-
     const formattedMonth = String(month).padStart(2, "0");
     const nextMonth = month === 12 ? 1 : month + 1;
     const formattedNextMonth = String(nextMonth).padStart(2, "0");
@@ -101,55 +129,6 @@ class TransactionService {
 
     // Ngày đầu tháng tiếp theo
     const endDate = new Date(`${year}-${formattedNextMonth}-01T00:00:00.000Z`);
-
-    // const data = await transactionModel.aggregate([
-    //   {
-    //     $match: {
-    //       createdAt: {
-    //         $gte: startDate, // Ngày đầu tháng
-    //         $lt: endDate, // Ngày đầu tháng sau
-    //       },
-    //     },
-    //   },
-
-    //   {
-    //     $group: {
-    //       _id: {
-    //         date: {
-    //           $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
-    //         },
-    //       },
-    //       transactions: {
-    //         $push: {
-    //           transaction_id: "$_id",
-    //           transaction_amount: "$transaction_amount",
-    //           transaction_description: "$transaction_description",
-    //           transaction_type: "$transaction_type",
-    //           category: "$category",
-    //         },
-    //       },
-    //     },
-    //   },
-    //   {
-    //     $lookup: {
-    //       $lookup: {
-    //         from: "Categories", // Tên tập hợp Category trong cơ sở dữ liệu
-    //         localField: "category", // Trường trong Transaction chứa ObjectId
-    //         foreignField: "_id", // Trường trong Category chứa ObjectId
-    //         as: "categoryDetails", // Tên trường mới để chứa thông tin kết hợp
-    //       },
-    //     },
-    //   },
-    //   {
-    //     $group: {
-    //       _id: "$_id.date",
-    //       transactions: { $push: "$transactions" },
-    //     },
-    //   },
-    //   {
-    //     $sort: { _id: 1 }, // Sắp xếp kết quả theo ngày
-    //   },
-    // ]);
 
     uid = new Types.ObjectId(uid);
     const transactions2 = await transactionModel.aggregate([

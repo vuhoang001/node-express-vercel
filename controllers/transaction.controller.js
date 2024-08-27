@@ -54,14 +54,20 @@ class TransactionController {
     const includeType = req.query.includeType || false;
     const uid = req.uid;
 
-    const data = await transactionService.statictisc(
-      type,
-      value,
-      includeType,
-      transactionType,
-      uid
-    );
-    return res.json(data);
+    try {
+      const data = await transactionService.statictisc(
+        type,
+        value,
+        includeType,
+        transactionType,
+        uid
+      );
+      if (data.lenth === 0) return res.status(404).json("No data!");
+
+      return res.status(200).json(data);
+    } catch (error) {
+      return res.status(501).json("Internal server");
+    }
   };
 
   getStaticCalander = async (req, res, next) => {
