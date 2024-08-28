@@ -2,8 +2,10 @@ const categoryModel = require("../models/categories.model");
 
 class CategoryService {
   getAll = async (uid, category_type) => {
+    const query = { uid };
+    if (category_type) query.category_type = category_type;
     try {
-      const data = await categoryModel.find({ uid: uid, category_type });
+      const data = await categoryModel.find(query);
       return data;
     } catch (error) {
       console.log(error);
