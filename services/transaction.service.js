@@ -15,7 +15,7 @@ class TransactionService {
 
     query.uid = uid;
 
-    const data = await transactionModel.find(query);
+    const data = await transactionModel.find(query).populate("category");
     return data;
   };
 
