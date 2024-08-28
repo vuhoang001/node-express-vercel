@@ -3,9 +3,10 @@ const { Types } = require("mongoose");
 class CategoryController {
   getAll = async (req, res, next) => {
     const uid = req.uid;
+    const category_type = req.query.category_type;
     if (!uid) res.status(404).json("Missing uid");
 
-    const data = await categoryService.getAll(uid);
+    const data = await categoryService.getAll(uid, category_type);
     return res.json(data);
   };
 

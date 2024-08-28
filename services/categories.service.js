@@ -1,21 +1,22 @@
 const categoryModel = require("../models/categories.model");
 
 class CategoryService {
-  getAll = async (uid) => {
+  getAll = async (uid, category_type) => {
     try {
-      const data = await categoryModel.find({ uid: uid });
+      const data = await categoryModel.find({ uid: uid, category_type });
       return data;
     } catch (error) {
       console.log(error);
     }
   };
 
-  create = async ({ category_name, category_icon }, uid) => {
+  create = async ({ category_name, category_icon, category_type }, uid) => {
     const holderCategory = await categoryModel.findOne({ category_name });
     if (holderCategory) return "Created failed";
     const data = await categoryModel.create({
       category_name,
       category_icon,
+      category_type,
       uid: uid,
     });
 

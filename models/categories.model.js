@@ -13,6 +13,10 @@ const CategorySchema = new Schema(
       type: String,
       default: "",
     },
+    category_type: {
+      type: String,
+      enum: ["income", "outcome"],
+    },
     uid: {
       type: Types.ObjectId,
       ref: "User",
