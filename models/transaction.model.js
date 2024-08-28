@@ -16,14 +16,18 @@ const TransactionSchema = new Schema(
       type: String,
       enum: ["income", "outcome"],
     },
+    transaction_date: {
+      type: String,
+      default: "",
+    },
     category: {
       type: Types.ObjectId,
       ref: "Category",
     },
     uid: {
-      type: Types.ObjectId, 
-      ref: "User"
-    }
+      type: Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,

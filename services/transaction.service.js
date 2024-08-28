@@ -1,6 +1,7 @@
 const transactionModel = require("../models/transaction.model");
 const { getDateRange } = require("../helpers/getDateRange");
 const { Types } = require("mongoose");
+const { formatDate } = require("../utils/index.util");
 class TransactionService {
   getAll = async (id, uid) => {
     let query = {};
@@ -24,9 +25,11 @@ class TransactionService {
       transaction_amount: Number(payload.transaction_amount),
       transaction_description: payload.transaction_description,
       transaction_type: payload.transaction_type,
+      transaction_date: payload.transaction_date,
       category: payload.category,
       uid: uid,
     });
+
     return data;
   };
 
