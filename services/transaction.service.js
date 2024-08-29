@@ -1,23 +1,49 @@
 const transactionModel = require("../models/transaction.model");
 const { getDateRange } = require("../helpers/getDateRange");
 const { Types } = require("mongoose");
-const { formatDate } = require("../utils/index.util");
+const {
+  getDayofMonth,
+  convertToISODate,
+  adjustToVietnamTime,
+} = require("../utils/index.util");
 class TransactionService {
-  getAll = async (id, uid) => {
+  getAll = async (month, year, id, uid) => {
     let query = {};
 
     if (id) {
       query._id = id;
     }
-
     if (!uid) {
       return "Get data failed";
     }
-
-    query.uid = uid;
+    if (month && year) {
+      const { startDate, endDate } = getDayofMonth(+month, +year);
+      query.transaction_date_iso = {
+        $gte: startDate,
+        $lte: endDate,
+      };
+    }
+    query.uid = new Types.ObjectId(uid);
 
     const data = await transactionModel.find(query).populate("category");
-    return data;
+
+    const dataa = await transactionModel.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $lookup: {
+          from: "Categories", // Tên của collection categories trong MongoDB
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $unwind: "$category",
+      },
+    ]);
+    return dataa;
   };
 
   create = async (payload, uid) => {

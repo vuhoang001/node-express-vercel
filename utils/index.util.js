@@ -12,7 +12,35 @@ function formatDate(date) {
   return `${day}/${month}/${year}`;
 }
 
+const convertToISODate = (dateString) => {
+  console.log(dateString);
+  const [day, month, year] = dateString.split("/").map(Number);
+  return new Date(year, month - 1, day);
+};
+
+function adjustToVietnamTime(date) {
+  const vietnamOffset = 7 * 60; // 7 giờ chuyển đổi thành phút
+  const utcOffset = date.getTimezoneOffset(); // Phút lệch UTC của thời gian hiện tại
+  return new Date(date.getTime() + (vietnamOffset - utcOffset) * 60 * 1000);
+}
+
+const getDayofMonth = (month, year) => {
+  const formattedMonth = String(month).padStart(2, "0");
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const formattedNextMonth = String(nextMonth).padStart(2, "0");
+
+    // Ngày đầu tháng hiện tại
+    const startDate = new Date(`${year}-${formattedMonth}-01T00:00:00.000Z`);
+
+    // Ngày đầu tháng tiếp theo
+    const endDate = new Date(`${year}-${formattedNextMonth}-01T00:00:00.000Z`);
+    
+  return { startDate, endDate };
+};
 module.exports = {
   unSelectedObject,
   formatDate,
+  convertToISODate,
+  adjustToVietnamTime,
+  getDayofMonth
 };

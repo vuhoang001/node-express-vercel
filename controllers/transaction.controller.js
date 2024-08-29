@@ -2,20 +2,17 @@ const transactionService = require("../services/transaction.service");
 const { getDateRange } = require("../helpers/getDateRange");
 class TransactionController {
   getAll = async (req, res, next) => {
+    const uid = req.uid;
+    const year = req.query.year;
+    const month = req.query.month;
     const id = req.query.transaction_id;
-    const { uid } = req.body;
-    const data = await transactionService.getAll(id, uid);
+    const data = await transactionService.getAll(month, year, id, uid);
     return res.json(data);
   };
 
   create = async (req, res, next) => {
     try {
-      const {
-        transaction_amount,
-        transaction_description,
-        transaction_type,
-        category,
-      } = req.body;
+      const { transaction_amount, transaction_type, category } = req.body;
       const uid = req.uid;
       if (!transaction_amount || !transaction_type || !category || !uid) {
         return res.status(400).json({ error: "Missing required fields" });
