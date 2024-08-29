@@ -17,6 +17,9 @@ const CategorySchema = new Schema(
       type: String,
       enum: ["income", "outcome"],
     },
+    category_color: {
+      type: String,
+    },
     uid: {
       type: Types.ObjectId,
       ref: "User",

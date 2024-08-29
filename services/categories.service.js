@@ -12,13 +12,17 @@ class CategoryService {
     }
   };
 
-  create = async ({ category_name, category_icon, category_type }, uid) => {
+  create = async (
+    { category_name, category_icon, category_type, category_color },
+    uid
+  ) => {
     const holderCategory = await categoryModel.findOne({ category_name });
     if (holderCategory) return "Created failed";
     const data = await categoryModel.create({
       category_name,
       category_icon,
       category_type,
+      category_color,
       uid: uid,
     });
 
