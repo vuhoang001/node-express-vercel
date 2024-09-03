@@ -1,6 +1,7 @@
 const transactionModel = require("../models/transaction.model");
 const { getDateRange } = require("../helpers/getDateRange");
 const { Types } = require("mongoose");
+const { BdRstError } = require("../core/error.response");
 const {
   getDayofMonth,
   convertToISODate,
@@ -11,7 +12,7 @@ class TransactionService {
     let query = {};
 
     if (id) {
-      query._id = id;
+      query._id = new Types.ObjectId(id);
     }
     if (!uid) {
       return "Get data failed";
@@ -35,14 +36,13 @@ class TransactionService {
     }
     query.uid = new Types.ObjectId(uid);
 
-    console.log(query);
     const dataa = await transactionModel.aggregate([
       {
         $match: query,
       },
       {
         $lookup: {
-          from: "Categories", 
+          from: "Categories",
           localField: "category",
           foreignField: "_id",
           as: "category",
@@ -222,6 +222,83 @@ class TransactionService {
       },
     ]);
     return transactions2;
+  };
+
+  getTransactionByCategory = async (month, year, uid) => {
+    const query = {};
+
+    if (!uid) {
+      throw new BdRstError("Error: Cant not find uid");
+    }
+    uid = new Types.ObjectId(uid);
+    query.uid = uid;
+
+    if (month && year) {
+      const { startDate, endDate } = getDayofMonth(+month, +year);
+      query.transaction_date_iso = {
+        $gte: startDate,
+        $lte: endDate,
+      };
+    }
+
+    if (!month && year) {
+      const startOfYear = new Date(`${year}-01-01T17:00:00.000Z`);
+      const endOfYear = new Date(`${year}-12-30T17:00:00.000Z`);
+      query.transaction_date_iso = {
+        $gte: startOfYear,
+        $lte: endOfYear,
+      };
+    }
+
+    const data = await transactionModel.aggregate([
+      {
+        $match: query, // Lọc theo tháng và năm nếu có
+      },
+      {
+        $lookup: {
+          from: "Categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "CategoryDetail",
+        },
+      },
+      {
+        $unwind: {
+          path: "$CategoryDetail",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$CategoryDetail._id", // Nhóm theo ID của danh mục
+          category_name: { $first: "$CategoryDetail.category_name" }, // Lấy tên danh mục từ tài liệu đầu tiên
+          category_color: { $first: "$CategoryDetail.category_color" }, // Lấy màu sắc danh mục từ tài liệu đầu tiên
+          category_icon: { $first: "$CategoryDetail.category_icon" }, // Lấy màu sắc danh mục từ tài liệu đầu tiên
+          transactions: {
+            // Bao gồm thông tin giao dịch
+            $push: {
+              transaction_id: "$_id",
+              transaction_amount: "$transaction_amount",
+              transaction_description: "$transaction_description",
+              transaction_date: "$transaction_date",
+              transaction_type: "$transaction_type",
+              transaction_date_iso: "$transaction_date_iso",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1, // Loại bỏ trường _id của nhóm
+          category_name: 1, // Trả về tên danh mục
+          category_color: 1, // Trả về màu sắc danh mục
+          category_icon: 1,
+          transactions: 1, // Trả về thông tin giao dịch
+        },
+      },
+    ]);
+
+    return data;
   };
 }
 

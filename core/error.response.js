@@ -16,6 +16,16 @@ class NotFoundError extends ErrorResponse {
   }
 }
 
+class BdRstError extends ErrorResponse {
+  constructor(
+    message = ReasonPhrases.BAD_REQUEST,
+    status = StatusCodes.BAD_REQUEST
+  ) {
+    super(message, status);
+  }
+}
+
 module.exports = {
   NotFoundError,
+  BdRstError
 };

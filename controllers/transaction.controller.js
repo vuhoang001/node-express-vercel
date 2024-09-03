@@ -1,4 +1,5 @@
 const transactionService = require("../services/transaction.service");
+const { SuccessResponse } = require("../core/success.response");
 
 class TransactionController {
   getAll = async (req, res, next) => {
@@ -8,6 +9,20 @@ class TransactionController {
     const id = req.query.transaction_id;
     const data = await transactionService.getAll(month, year, id, uid);
     return res.json(data);
+  };
+
+  getTransactionByCategory = async (req, res, next) => {
+    const uid = req.uid;
+    const year = req.query.year;
+    const month = req.query.month;
+    new SuccessResponse({
+      message: "Success",
+      metadata: await transactionService.getTransactionByCategory(
+        month,
+        year,
+        uid
+      ),
+    }).send(res);
   };
 
   create = async (req, res, next) => {
