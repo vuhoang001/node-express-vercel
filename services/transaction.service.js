@@ -16,6 +16,16 @@ class TransactionService {
     if (!uid) {
       return "Get data failed";
     }
+
+    if (!month && year) {
+      const startOfYear = new Date(`${year}-01-01T17:00:00.000Z`);
+      const endOfYear = new Date(`${year}-12-30T17:00:00.000Z`);
+      query.transaction_date_iso = {
+        $gte: startOfYear,
+        $lte: endOfYear,
+      };
+    }
+
     if (month && year) {
       const { startDate, endDate } = getDayofMonth(+month, +year);
       query.transaction_date_iso = {
@@ -25,15 +35,14 @@ class TransactionService {
     }
     query.uid = new Types.ObjectId(uid);
 
-    const data = await transactionModel.find(query).populate("category");
-
+    console.log(query);
     const dataa = await transactionModel.aggregate([
       {
         $match: query,
       },
       {
         $lookup: {
-          from: "Categories", // Tên của collection categories trong MongoDB
+          from: "Categories", 
           localField: "category",
           foreignField: "_id",
           as: "category",
