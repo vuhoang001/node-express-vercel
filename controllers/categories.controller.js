@@ -1,20 +1,23 @@
 const categoryService = require("../services/categories.service");
-const { Types } = require("mongoose");
+
+const { SuccessResponse } = require("../core/success.response");
+
 class CategoryController {
   getAll = async (req, res, next) => {
     const uid = req.uid;
     const category_type = req.query.category_type;
-    if (!uid) res.status(404).json("Missing uid");
-
-    const data = await categoryService.getAll(uid, category_type);
-    return res.json(data);
+    new SuccessResponse({
+      message: "Get all success!",
+      metadata: await categoryService.getAll(uid, category_type),
+    }).send(res);
   };
 
   create = async (req, res, next) => {
     const uid = req.uid;
-    if (!uid) res.status(501).json("Missing uid");
-    const data = await categoryService.create(req.body, uid);
-    return res.json(data);
+    new SuccessResponse({
+      message: "Created success!",
+      metadata: await categoryService.create(req.body, uid),
+    }).send(res);
   };
 
   edit = async (req, res, next) => {

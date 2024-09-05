@@ -7,8 +7,10 @@ class TransactionController {
     const year = req.query.year;
     const month = req.query.month;
     const id = req.query.transaction_id;
-    const data = await transactionService.getAll(month, year, id, uid);
-    return res.json(data);
+    new SuccessResponse({
+      message: "Get all success!",
+      metadata: await transactionService.getAll(month, year, id, uid),
+    }).send(res);
   };
 
   getTransactionByCategory = async (req, res, next) => {
@@ -26,37 +28,28 @@ class TransactionController {
   };
 
   create = async (req, res, next) => {
-    try {
-      const { transaction_amount, transaction_type, category } = req.body;
-      const uid = req.uid;
-      if (!transaction_amount || !transaction_type || !category || !uid) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-
-      const data = await transactionService.create(req.body, uid);
-      return res.status(201).json(data);
-    } catch (error) {
-      console.error("Error in create controller:", error);
-      next(error);
-    }
+    const uid = req.uid;
+    new SuccessResponse({
+      message: "Create success!",
+      metadata: await transactionService.create(req.body, uid),
+    }).send(res);
   };
 
   edit = async (req, res, next) => {
-    try {
-      const id = req.query.transaction_id;
-      if (!id) return res.json(404).json({ error: "Missing id" });
-      const data = await transactionService.edit(id, req.body);
-      return res.status(200).json(data);
-    } catch (error) {
-      console.log(error);
-    }
+    const id = req.query.transaction_id;
+    new SuccessResponse({
+      message: "Edit success",
+      metadata: await transactionService.edit(id, req.body),
+    }).send(res);
   };
 
   delete = async (req, res, next) => {
     const id = req.query.transaction_id;
-    if (!id) return res.json(404).json({ error: "Missing id" });
-    const data = await transactionService.delete(id);
-    return res.status(200).json(data);
+
+    new SuccessResponse({
+      message: "Delete success!",
+      metadata: await transactionService.delete(id),
+    }).send(res);
   };
 
   getStatistics = async (req, res, next) => {
@@ -108,6 +101,13 @@ class TransactionController {
       console.error("Error fetching calendar data:", error);
       return res.status(500).json({ message: "Internal server error." });
     }
+  };
+
+  DontClick = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Delete all transaction and category",
+      metadata: await transactionService.DontClick(),
+    }).send(res);
   };
 }
 

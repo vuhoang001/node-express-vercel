@@ -1,9 +1,24 @@
-const { ReasonPhrases, StatusCodes } = require("../utils/httpStatusCode");
+const { StatusCodes, ReasonPhrases } = require("../utils/httpStatusCode");
 
 class ErrorResponse extends Error {
   constructor(message, status) {
     super(message);
     this.status = status;
+  }
+}
+
+class ConflictError extends ErrorResponse {
+  constructor(message = ReasonPhrases.CONFLICT, status = StatusCodes.CONFLICT) {
+    super(message, status);
+  }
+}
+
+class AuthFailureError extends ErrorResponse {
+  constructor(
+    message = ReasonPhrases.UNAUTHORIZED,
+    status = StatusCodes.UNAUTHORIZED
+  ) {
+    super(message, status);
   }
 }
 
@@ -16,7 +31,7 @@ class NotFoundError extends ErrorResponse {
   }
 }
 
-class BdRstError extends ErrorResponse {
+class BadRequestError extends ErrorResponse {
   constructor(
     message = ReasonPhrases.BAD_REQUEST,
     status = StatusCodes.BAD_REQUEST
@@ -26,6 +41,8 @@ class BdRstError extends ErrorResponse {
 }
 
 module.exports = {
+  BadRequestError,
+  ConflictError,
+  AuthFailureError,
   NotFoundError,
-  BdRstError
 };

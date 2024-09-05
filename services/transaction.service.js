@@ -1,21 +1,19 @@
 const transactionModel = require("../models/transaction.model");
+const categoryModel = require("../models/categories.model");
 const { getDateRange } = require("../helpers/getDateRange");
 const { Types } = require("mongoose");
 const { BdRstError } = require("../core/error.response");
-const {
-  getDayofMonth,
-  convertToISODate,
-  adjustToVietnamTime,
-} = require("../utils/index.util");
+const { getDayofMonth } = require("../utils/index.util");
+const { BadRequestError, NotFoundError } = require("../core/error.response");
+
 class TransactionService {
   getAll = async (month, year, id, uid) => {
+    if (!uid) throw new BadRequestError("Error: Missing uid");
+
     let query = {};
 
     if (id) {
       query._id = new Types.ObjectId(id);
-    }
-    if (!uid) {
-      return "Get data failed";
     }
 
     if (!month && year) {
@@ -36,7 +34,7 @@ class TransactionService {
     }
     query.uid = new Types.ObjectId(uid);
 
-    const dataa = await transactionModel.aggregate([
+    const data = await transactionModel.aggregate([
       {
         $match: query,
       },
@@ -52,10 +50,15 @@ class TransactionService {
         $unwind: "$category",
       },
     ]);
-    return dataa;
+
+    return data;
   };
 
   create = async (payload, uid) => {
+    if (!uid) throw new BadRequestError("Error: Missing uid");
+    const { transaction_amount, transaction_type, category } = payload;
+    if (!transaction_amount || !transaction_type || !category)
+      throw new NotFoundError("Error: Missing required fileds");
     const data = await transactionModel.create({
       transaction_amount: Number(payload.transaction_amount),
       transaction_description: payload.transaction_description,
@@ -64,16 +67,19 @@ class TransactionService {
       category: payload.category,
       uid: uid,
     });
-
+    if (!data) throw new BadRequestError("Something went wrong! Cant creat");
     return data;
   };
 
   edit = async (id, payload) => {
+    if (!id) throw new BadRequestError("Error: Missing id");
     const holder = await transactionModel.findOne({ _id: id });
-    if (!holder) return "Can not find transaction";
+    if (!holder) throw new NotFoundError("Cant found transaction");
     const data = await transactionModel.findOneAndUpdate({ _id: id }, payload, {
       new: true,
     });
+
+    if (!data) throw new BadRequestError("Cant edit transaction!");
     return data;
   };
 
@@ -85,6 +91,7 @@ class TransactionService {
       { new: true }
     );
 
+    if (!data) throw new BadRequestError("Error: Cant not delete transaction");
     return data;
   };
 
@@ -299,6 +306,14 @@ class TransactionService {
     ]);
 
     return data;
+  };
+
+  DontClick = async () => {
+    const delOne = await transactionModel.deleteMany({ new: true });
+    if (!delOne) throw new BadRequestError("Cant delete all");
+    const delTwo = await categoryModel.deleteMany({ new: true });
+    if (!delTwo) throw new BadRequestError("Cant delete all2");
+    return 1;
   };
 }
 
