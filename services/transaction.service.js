@@ -281,6 +281,7 @@ class TransactionService {
           category_name: { $first: "$CategoryDetail.category_name" }, // Lấy tên danh mục từ tài liệu đầu tiên
           category_color: { $first: "$CategoryDetail.category_color" }, // Lấy màu sắc danh mục từ tài liệu đầu tiên
           category_icon: { $first: "$CategoryDetail.category_icon" }, // Lấy màu sắc danh mục từ tài liệu đầu tiên
+          category_type: { $first: "$CategoryDetail.category_type" }, // Lấy màu sắc danh mục từ tài liệu đầu tiên
           transactions: {
             // Bao gồm thông tin giao dịch
             $push: {
@@ -300,6 +301,7 @@ class TransactionService {
           category_name: 1, // Trả về tên danh mục
           category_color: 1, // Trả về màu sắc danh mục
           category_icon: 1,
+          category_type: 1,
           transactions: 1, // Trả về thông tin giao dịch
         },
       },
