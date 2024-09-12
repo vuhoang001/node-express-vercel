@@ -2,6 +2,7 @@ const userModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const { unSelectedObject } = require("../utils/index.util");
 const { BadRequestError, AuthFailureError } = require("../core/error.response");
+const { sendMail } = require("../config/nodemailer.config");
 class UserService {
   getAll = async () => {
     const data = await userModel.find().select("-password -__v");
@@ -12,21 +13,16 @@ class UserService {
     const holderAccount = await userModel.findOne({ username: username });
     if (holderAccount) throw new AuthFailureError("Error: Account is registed");
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    if (!hashedPassword)
-      throw new BadRequestError("Something went wrong - create");
-
     const newAccount = await userModel.create({
       username,
-      password: hashedPassword,
+      password: password,
       gmail,
       phone,
     });
 
     if (!newAccount) throw new BadRequestError("Failed to create account");
 
-    return data;
+    return "Registed success!";
   };
 
   login = async ({ username, password }) => {
@@ -34,12 +30,7 @@ class UserService {
     if (!holderAccount)
       throw new AuthFailureError("Account or password is wrong!");
 
-    const matchPassword = await bcrypt.compare(
-      password,
-      holderAccount.password
-    );
-
-    if (!matchPassword)
+    if (password != holderAccount.password)
       throw new AuthFailureError("Account or password is wrong!");
 
     const metadata = unSelectedObject(holderAccount.toObject(), [
@@ -50,10 +41,14 @@ class UserService {
     return metadata;
   };
 
-  // forgetPassword = async ({ username, email }) => {
-  //   const holderAccount = await userModel.findOne({ username });
-  //   if (!holderAccount) return "Account is not registed!";
-  // };
+  handleForgetPassword = async ({ email }) => {
+    const holderAccount = await userModel.findOne({ gmail: email });
+    if (!holderAccount)
+      throw new AuthFailureError("Error: Account is not registed!");
+
+    sendMail(email, holderAccount.password);
+    return "Handle forget password success!";
+  };
 }
 
 module.exports = new UserService();

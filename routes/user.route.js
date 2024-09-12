@@ -6,4 +6,8 @@ const AsyncHandle = require("../helpers/AsyncHandle");
 router.get("/user", AsyncHandle(UserController.getUser));
 router.post("/register", AsyncHandle(UserController.createUser));
 router.post("/login", AsyncHandle(UserController.login));
+router.post(
+  "/forget-password",
+  AsyncHandle(UserController.handleforgetPassword)
+);
 module.exports = router;

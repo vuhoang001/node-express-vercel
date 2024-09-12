@@ -21,6 +21,13 @@ class UserController {
     const data = await UserService.login(req.body);
     return res.json(data);
   };
+
+  handleforgetPassword = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Request to forget password!",
+      metadata: await UserService.handleForgetPassword(req.body),
+    }).send(res);
+  };
 }
 
 module.exports = new UserController();
