@@ -46,7 +46,8 @@ class UserService {
     if (!holderAccount)
       throw new AuthFailureError("Error: Account is not registed!");
 
-    sendMail(email, holderAccount.password);
+    const link = `Xin chào ${holderAccount.username}, mật khẩu của bạn là: ${holderAccount.password}`;
+    sendMail(email, link);
     return "Handle forget password success!";
   };
 }
