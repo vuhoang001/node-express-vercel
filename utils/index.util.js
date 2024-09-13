@@ -24,17 +24,22 @@ function adjustToVietnamTime(date) {
   return new Date(date.getTime() + (vietnamOffset - utcOffset) * 60 * 1000);
 }
 
+const generateRamdonNumber = () => {
+  const ramdonNumber = Math.floor(10000 + Math.random() * 90000);
+  return ramdonNumber.toString().padStart(5, "0");
+};
+
 const getDayofMonth = (month, year) => {
   const formattedMonth = String(month).padStart(2, "0");
-    const nextMonth = month === 12 ? 1 : month + 1;
-    const formattedNextMonth = String(nextMonth).padStart(2, "0");
+  const nextMonth = month === 12 ? 1 : month + 1;
+  const formattedNextMonth = String(nextMonth).padStart(2, "0");
 
-    // Ngày đầu tháng hiện tại
-    const startDate = new Date(`${year}-${formattedMonth}-01T00:00:00.000Z`);
+  // Ngày đầu tháng hiện tại
+  const startDate = new Date(`${year}-${formattedMonth}-01T00:00:00.000Z`);
 
-    // Ngày đầu tháng tiếp theo
-    const endDate = new Date(`${year}-${formattedNextMonth}-01T00:00:00.000Z`);
-    
+  // Ngày đầu tháng tiếp theo
+  const endDate = new Date(`${year}-${formattedNextMonth}-01T00:00:00.000Z`);
+
   return { startDate, endDate };
 };
 module.exports = {
@@ -42,5 +47,6 @@ module.exports = {
   formatDate,
   convertToISODate,
   adjustToVietnamTime,
-  getDayofMonth
+  getDayofMonth,
+  generateRamdonNumber,
 };

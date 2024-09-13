@@ -32,7 +32,22 @@ class UserController {
   update = async (req, res, next) => {
     new SuccessResponse({
       message: "Change password success!",
-      metadata: await UserService.update(req.body),
+      metadata: await UserService.update(req.uid, req.body),
+    }).send(res);
+  };
+
+  sendOTP = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Send OTP succeess!",
+      metadata: await UserService.sendOTP(req.uid),
+    }).send(res);
+  };
+
+  handleOTP = async (req, res, next) => {
+    const { otp } = req.body;
+    new SuccessResponse({
+      message: "Handle OTP success!",
+      metadata: await UserService.handleOTP(req.uid, otp),
     }).send(res);
   };
 }

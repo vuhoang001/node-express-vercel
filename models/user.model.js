@@ -27,3 +27,4 @@ const UserSchema = new Schema(
 );
 
 module.exports = model(DOCUMENT_NAME, UserSchema);
+
