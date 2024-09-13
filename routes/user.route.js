@@ -10,4 +10,5 @@ router.post(
   "/forget-password",
   AsyncHandle(UserController.handleforgetPassword)
 );
+router.post("/change-password", AsyncHandle(UserController.update));
 module.exports = router;

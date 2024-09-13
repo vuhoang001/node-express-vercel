@@ -28,6 +28,13 @@ class UserController {
       metadata: await UserService.handleForgetPassword(req.body),
     }).send(res);
   };
+
+  update = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Change password success!",
+      metadata: await UserService.update(req.body),
+    }).send(res);
+  };
 }
 
 module.exports = new UserController();

@@ -11,7 +11,14 @@ class UserService {
 
   createUser = async ({ username, password, gmail, phone }) => {
     const holderAccount = await userModel.findOne({ username: username });
-    if (holderAccount) throw new AuthFailureError("Error: Account is registed");
+    if (holderAccount) {
+      throw new AuthFailureError("Error: Account is registed");
+    }
+
+    const holderEmail = await userModel.findOne({ gmail: gmail });
+    if (holderEmail) {
+      throw new AuthFailureError("Account is registed2");
+    }
 
     const newAccount = await userModel.create({
       username,
@@ -49,6 +56,19 @@ class UserService {
     const link = `Xin chào ${holderAccount.username}, mật khẩu của bạn là: ${holderAccount.password}`;
     sendMail(email, link);
     return "Handle forget password success!";
+  };
+
+  update = async ({ username, newPassword }) => {
+    const holderAccount = await userModel.findOne({ username });
+    if (!holderAccount) throw new AuthFailureError("Account is not registed!");
+
+    const res = await userModel.findOneAndUpdate(
+      { username: username },
+      { password: newPassword }
+    );
+
+    if (!res) throw new BadRequestError("Something wentwrong!");
+    return "Success!";
   };
 }
 
